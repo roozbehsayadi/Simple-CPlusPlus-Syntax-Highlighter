@@ -2,6 +2,48 @@
 import java.io.*;
 import java_cup.runtime.*;
 
+class Symbol {
+
+	public String content;
+	public TokenType tokenType;
+	public int yyline, yycolumn;
+
+	public Symbol( TokenType tokenType, int yyline, int yycolumn, String content ) {
+		this.content = content;
+		this.tokenType = tokenType;
+		this.yyline = yyline;
+		this.yycolumn = yycolumn;
+	}
+
+}
+
+enum TokenType {
+
+	AUTO, DOUBLE,
+	INT, STRUCT,
+	CONST, FLOAT,
+	SHORT, UNSIGNED,
+	BREAK, ELSE,
+	LONG, SWITCH,
+	CONTINUE, FOR,
+	SIGNED, VOID,
+	CASE, ENUM,
+	REGISTER, TYPEDEF,
+	DEFAULT, GOTO,
+	SIZEOF, VOLATILE,
+	CHAR, EXTERN,
+	RETURN, UNION,
+	DO, IF,
+	STATIC, WHILE,
+	LESSTHAN, MORETHAN,
+	IDENTIFIER, INTEGER,
+	ENTER, TAB,
+	SPECIAL_CHARACTER, STRING,
+	COMMENT, NORMAL_CHARACTER,
+	NOTHING, EOF;
+
+}
+
 %%
 
 %public
@@ -11,44 +53,122 @@ import java_cup.runtime.*;
 %class MyScanner
 %unicode
 
-%function readNext
+%type Symbol
+
+%function next
+
+%state STRING, CHARACTER
+
+LineTerminator = \r|\n|\r\n
+InputCharacter = [^\r\n]
+
+WhiteSpace = {LineTerminator} | [ \t\f]
+
+TraditionalComment = "/*"~"*/"
+InLineComment = "//" {InputCharacter}* {LineTerminator}
+
+Comment = {TraditionalComment}|{InLineComment}
+
+Letter = [A-Za-z]
+Digit = [0-9]
+Underscore = "_"
+
+Identifier = {Letter} ({Letter}|{Digit}|{Underscore})*
+
+Zero = 0
+Octal = 0[0-7]+
+Decimal = [1-9][0-9]*
+HexaDecimal = [0][xX][0-9a-fA-F]+;
+
+IntegerNumbers = {Zero}|{Octal}|{Decimal}|{HexaDecimal}
+
+StringCharacter = [^\n\r\t\v\b\f\a\?\0\\]
+SingleCharacter = [^\n\r\t\v\b\f\a\?\0\\]
+
+NormalCharacter = "'" {SingleCharacter} "'"
 
 %%
 
 <YYINITIAL> {
 
 	/* keywords */
-	"auto"          { return symbol(AUTO); }
-	"double"        { return symbol(DOUBLE); }
-	"int"           { return symbol(INT); }
-	"struct"        { return symbol(STRUCT); }
-	"const"         { return symbol(CONST); }
-	"float"         { return symbol(FLOAT); }
-	"short"         { return symbol(SHORT); }
-	"unsigned"      { return symbol(UNSIGNED); }
-	"break"         { return symbol(BREAK); }
-	"else"          { return symbol(ELSE); }
-	"long"          { return symbol(LONG); }
-	"switch"        { return symbol(SWITCH); }
-	"continue"      { return symbol(CONTINUE); }
-	"for"           { return symbol(FOR); }
-	"signed"        { return symbol(SIGNED); }
-	"void"          { return symbol(VOID); }
-	"case"          { return symbol(CASE); }
-	"enum"          { return symbol(ENUM); }
-	"register"      { return symbol(REGISTER); }
-	"typedef"       { return symbol(TYPEDEF); }
-	"default"       { return symbol(DEFAULT); }
-	"goto"          { return symbol(GOTO); }
-	"sizeof"        { return symbol(SIZEOF); }
-	"volatile"      { return symbol(VOLATILE); }
-	"char"          { return symbol(CHAR); }
-	"extern"        { return symbol(EXTERN); }
-	"return"        { return symbol(RETURN); }
-	"union"         { return symbol(UNION); }
-	"do"            { return symbol(DO); }
-	"if"            { return symbol(IF); }
-	"static"        { return symbol(STATIC); }
-	"while"         { return symbol(WHILE); }
+	"auto"          { return new Symbol( TokenType.AUTO, yyline, yycolumn, "auto" ); }
+	"double"        { return new Symbol( TokenType.DOUBLE, yyline, yycolumn, "double" ); }
+	"int"           { return new Symbol( TokenType.INT, yyline, yycolumn, "int" ); }
+	"struct"        { return new Symbol( TokenType.STRUCT, yyline, yycolumn, "struct" ); }
+	"const"         { return new Symbol( TokenType.CONST, yyline, yycolumn, "const" ); }
+	"float"         { return new Symbol( TokenType.FLOAT, yyline, yycolumn, "float" ); }
+	"short"         { return new Symbol( TokenType.SHORT, yyline, yycolumn, "short" ); }
+	"unsigned"      { return new Symbol( TokenType.UNSIGNED, yyline, yycolumn, "unsigned" ); }
+	"break"         { return new Symbol( TokenType.BREAK, yyline, yycolumn, "break" ); }
+	"else"          { return new Symbol( TokenType.ELSE, yyline, yycolumn, "else" ); }
+	"long"          { return new Symbol( TokenType.LONG, yyline, yycolumn, "long" ); }
+	"switch"        { return new Symbol( TokenType.SWITCH, yyline, yycolumn, "switch" ); }
+	"continue"      { return new Symbol( TokenType.CONTINUE, yyline, yycolumn, "continue" ); }
+	"for"           { return new Symbol( TokenType.FOR, yyline, yycolumn, "for" ); }
+	"signed"        { return new Symbol( TokenType.SIGNED, yyline, yycolumn, "signed" ); }
+	"void"          { return new Symbol( TokenType.VOID, yyline, yycolumn, "void" ); }
+	"case"          { return new Symbol( TokenType.CASE, yyline, yycolumn, "case" ); }
+	"enum"          { return new Symbol( TokenType.ENUM, yyline, yycolumn, "enum" ); }
+	"register"      { return new Symbol( TokenType.REGISTER, yyline, yycolumn, "register" ); }
+	"typedef"       { return new Symbol( TokenType.TYPEDEF, yyline, yycolumn, "typedef" ); }
+	"default"       { return new Symbol( TokenType.DEFAULT, yyline, yycolumn, "default" ); }
+	"goto"          { return new Symbol( TokenType.GOTO, yyline, yycolumn, "goto" ); }
+	"sizeof"        { return new Symbol( TokenType.SIZEOF, yyline, yycolumn, "sizeof" ); }
+	"volatile"      { return new Symbol( TokenType.VOLATILE, yyline, yycolumn, "volatile" ); }
+	"char"          { return new Symbol( TokenType.CHAR, yyline, yycolumn, "char" ); }
+	"extern"        { return new Symbol( TokenType.EXTERN, yyline, yycolumn, "extern" ); }
+	"return"        { return new Symbol( TokenType.RETURN, yyline, yycolumn, "return" ); }
+	"union"         { return new Symbol( TokenType.UNION, yyline, yycolumn, "union" ); }
+	"do"            { return new Symbol( TokenType.DO, yyline, yycolumn, "do" ); }
+	"if"            { return new Symbol( TokenType.IF, yyline, yycolumn, "if" ); }
+	"static"        { return new Symbol( TokenType.STATIC, yyline, yycolumn, "static" ); }
+	"while"         { return new Symbol( TokenType.WHILE, yyline, yycolumn, "while" ); }
+	"<"             { return new Symbol( TokenType.LESSTHAN, yyline, yycolumn, "lessthan" ); }
+	">"             { return new Symbol( TokenType.MORETHAN, yyline, yycolumn, "morethan" ); }
+
+	{Identifier}    { return new Symbol( TokenType.IDENTIFIER, yyline, yycolumn, yytext() ); }
+
+	{IntegerNumbers}    { return new Symbol( TokenType.INTEGER, yyline, yycolumn, yytext() ); }
+
+	{Comment}       { return new Symbol( TokenType.COMMENT, yyline, yycolumn, yytext() ); }
+
+	"\t"           { return new Symbol( TokenType.TAB, yyline, yycolumn, "\t" ); }
+
+	"\""              { yybegin( STRING ); return new Symbol( TokenType.STRING, yyline, yycolumn, yytext() ); }
+
+	{NormalCharacter}   { return new Symbol( TokenType.NORMAL_CHARACTER, yyline, yycolumn, yytext() ); }
+
+	{LineTerminator}    {return new Symbol( TokenType.ENTER, yyline, yycolumn, "\n" ); }
+
+	[^]             { return new Symbol( TokenType.NOTHING, yyline, yycolumn, yytext() ); }
+
+	//<<EOF>>
 
 }
+
+<STRING> {
+
+	"\""          { yybegin( YYINITIAL ); return new Symbol( TokenType.STRING, yyline, yycolumn, yytext() ); }
+
+//	{StringCharacter}+      { return new Symbol( TokenType.STRING, yyline, yycolumn, yytext() );  }
+
+	"\\n"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\n" ); }
+	"\\t"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\t" ); }
+	"\\v"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\v" ); }
+	"\\b"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\b" ); }
+	"\\r"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\r" ); }
+	"\\f"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\f" ); }
+	"\\a"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\a" ); }
+	"\\\\"      { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\\\" ); }
+	"\\?"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\?" ); }
+	"\\'"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\'" ); }
+	"\\\""      { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\\"" ); }
+	"\\0"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\0" ); }
+
+	.           { return new Symbol( TokenType.STRING, yyline, yycolumn, yytext() ); }
+
+
+}
+
+<<EOF>>             { return new Symbol( TokenType.EOF, yyline, yycolumn, "EOF" ); }

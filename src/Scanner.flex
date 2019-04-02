@@ -36,8 +36,8 @@ enum TokenType {
 	DO, IF,
 	STATIC, WHILE,
 	LESSTHAN, MORETHAN,
-	IDENTIFIER, INTEGER,
-	ENTER, TAB,
+	IDENTIFIER, INTEGERLITERAL,
+	FLOATLITERAL, ENTER, TAB,
 	SPECIAL_CHARACTER, STRING,
 	COMMENT, NORMAL_CHARACTER,
 	NOTHING, EOF;
@@ -81,6 +81,11 @@ Decimal = [1-9][0-9]*
 HexaDecimal = [0][xX][0-9a-fA-F]+;
 
 IntegerNumbers = {Zero}|{Octal}|{Decimal}|{HexaDecimal}
+
+NormalFloat = ( ({Digit}+\.{Digit}*) | ({Digit}*\.{Digit}+) )
+ScientificFloat = ( {NormalFloat}|{Zero}|{Decimal} ) "e" ( \+|\- )? {Digit}+
+
+FloatNumbers = NormalFloat | ScientificFloat
 
 StringCharacter = [^\n\r\t\v\b\f\a\?\0\\]
 SingleCharacter = [^\n\r\t\v\b\f\a\?\0\\]
@@ -129,7 +134,10 @@ NormalCharacter = "'" {SingleCharacter} "'"
 
 	{Identifier}    { return new Symbol( TokenType.IDENTIFIER, yyline, yycolumn, yytext() ); }
 
-	{IntegerNumbers}    { return new Symbol( TokenType.INTEGER, yyline, yycolumn, yytext() ); }
+	{IntegerNumbers}    { return new Symbol( TokenType.INTEGERLITERAL, yyline, yycolumn, yytext() ); }
+
+	{NormalFloat}  { return new Symbol( TokenType.FLOATLITERAL, yyline, yycolumn, yytext() ); }
+	{ScientificFloat}   { return new Symbol( TokenType.FLOATLITERAL, yyline, yycolumn, yytext() ); }
 
 	{Comment}       { return new Symbol( TokenType.COMMENT, yyline, yycolumn, yytext() ); }
 
@@ -137,7 +145,8 @@ NormalCharacter = "'" {SingleCharacter} "'"
 
 	"\""              { yybegin( STRING ); return new Symbol( TokenType.STRING, yyline, yycolumn, yytext() ); }
 
-	{NormalCharacter}   { return new Symbol( TokenType.NORMAL_CHARACTER, yyline, yycolumn, yytext() ); }
+	//{NormalCharacter}   { return new Symbol( TokenType.NORMAL_CHARACTER, yyline, yycolumn, yytext() ); }
+	"'"             { yybegin( CHARACTER ); return new Symbol( TokenType.NORMAL_CHARACTER, yyline, yycolumn, "'" ); }
 
 	{LineTerminator}    {return new Symbol( TokenType.ENTER, yyline, yycolumn, "\n" ); }
 
@@ -167,6 +176,26 @@ NormalCharacter = "'" {SingleCharacter} "'"
 	"\\0"       { return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\0" ); }
 
 	.           { return new Symbol( TokenType.STRING, yyline, yycolumn, yytext() ); }
+
+
+}
+
+<CHARACTER> {
+
+	"\\n"\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\n'" ); }
+	"\\t"\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\t'" ); }
+	"\\v"\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\v'" ); }
+	"\\b"\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\b'" ); }
+	"\\r"\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\r'" ); }
+	"\\f"\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\f'" ); }
+	"\\a"\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\a'" ); }
+	"\\\\"\'    { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\\\'" ); }
+	"\\?"\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\?'" ); }
+	"\\'"\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\''" ); }
+	"\\\""\'    { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\\"'" ); }
+	"\\0"\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.SPECIAL_CHARACTER, yyline, yycolumn, "\\0'" ); }
+
+	{SingleCharacter}\'     { yybegin( YYINITIAL ); return new Symbol( TokenType.NORMAL_CHARACTER, yyline, yycolumn, yytext() ); }
 
 
 }

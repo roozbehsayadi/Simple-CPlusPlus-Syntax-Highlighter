@@ -3,6 +3,8 @@ import java.io.*;
 
 public class Main {
 
+	final static String TAB = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
 	public static void main(String[] args) throws IOException {
 
 //		System.out.println( args[0].split("\\.").length );
@@ -29,7 +31,7 @@ public class Main {
 			if ( token == TokenType.ENTER )
 				fileWriter.write( "<br>" );
 			else if ( token == TokenType.TAB )
-				fileWriter.write( "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" );
+				fileWriter.write( TAB );
 				//fileWriter.write( "<span class=\"indent\"></span>" );
 			else if ( token == TokenType.LESSTHAN )
 				fileWriter.write( "&lt;" );
@@ -37,17 +39,19 @@ public class Main {
 				fileWriter.write( "&gt;" );
 			else if ( token == TokenType.IDENTIFIER )
 				fileWriter.write( "<span style=\"color:orange\">" + current.content + "</span>" );
-			else if ( token == TokenType.INTEGER )
+			else if ( token == TokenType.INTEGERLITERAL )
 				fileWriter.write( "<span style=\"color:violet\">" + current.content + "</span>" );
 			else if ( token == TokenType.STRING )
 				fileWriter.write("<span style=\"color:red\">" + current.content + "</span>");
 			else if ( token == TokenType.SPECIAL_CHARACTER )
 				fileWriter.write( "<span style=\"color:green\"><i>" + current.content + "</i></span>" );
 			else if ( token == TokenType.COMMENT )
-				fileWriter.write( "<span style=\"color:gray\">" + current.content + "</span><br>" );
-			else if ( token == TokenType.NORMAL_CHARACTER ) {
+				fileWriter.write( "<span style=\"color:gray\">" + commentToHTMLString( current.content ) + "</span>" );
+			else if ( token == TokenType.NORMAL_CHARACTER )
 				fileWriter.write("<span style=\"color:green\">" + current.content + "</span>");
-				System.out.println( "Character!" );
+			else if ( token == TokenType.FLOATLITERAL ) {
+				fileWriter.write("<span style=\"color:violet\"><i>" + current.content + "</i></span>");
+				System.out.println( "FLOAT LITERAAAAL" );
 			}
 			else if ( token != TokenType.NOTHING )
 				fileWriter.write( "<span style=\"color:blue\"><b>" + current.content + "</b></span>" );
@@ -60,6 +64,19 @@ public class Main {
 
 		fileWriter.close();
 
+	}
+
+	public static String commentToHTMLString(String s ) throws IOException {
+		String returnValue = "";
+		for ( int i = 0; i < s.length(); i++ ) {
+			if ( s.charAt(i) == '\n' )
+				returnValue = returnValue.concat( "<br>" );
+			else if ( s.charAt(i) == '\t' )
+				returnValue = returnValue.concat( TAB );
+			else
+				returnValue = returnValue.concat( Character.toString( s.charAt( i ) ) );
+		}
+		return returnValue;
 	}
 
 }

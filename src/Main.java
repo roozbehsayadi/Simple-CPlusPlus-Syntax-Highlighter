@@ -49,10 +49,8 @@ public class Main {
 				fileWriter.write( "<span style=\"color:gray\">" + commentToHTMLString( current.content ) + "</span>" );
 			else if ( token == TokenType.NORMAL_CHARACTER )
 				fileWriter.write("<span style=\"color:green\">" + current.content + "</span>");
-			else if ( token == TokenType.FLOATLITERAL ) {
+			else if ( token == TokenType.FLOATLITERAL ) 
 				fileWriter.write("<span style=\"color:violet\"><i>" + current.content + "</i></span>");
-				System.out.println( "FLOAT LITERAAAAL" );
-			}
 			else if ( token != TokenType.NOTHING )
 				fileWriter.write( "<span style=\"color:blue\"><b>" + current.content + "</b></span>" );
 			else

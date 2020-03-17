@@ -1,6 +1,6 @@
+package syntaxhighlighter;
 
 import java.io.*;
-import java_cup.runtime.*;
 
 class Symbol {
 

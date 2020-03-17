@@ -1,7 +1,7 @@
-
+package syntaxhighlighter;
 import java.io.*;
 
-public class Main {
+public class App {
 
 	final static String TAB = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 
@@ -49,7 +49,7 @@ public class Main {
 				fileWriter.write( "<span style=\"color:gray\">" + commentToHTMLString( current.content ) + "</span>" );
 			else if ( token == TokenType.NORMAL_CHARACTER )
 				fileWriter.write("<span style=\"color:green\">" + current.content + "</span>");
-			else if ( token == TokenType.FLOATLITERAL ) 
+			else if ( token == TokenType.FLOATLITERAL )
 				fileWriter.write("<span style=\"color:violet\"><i>" + current.content + "</i></span>");
 			else if ( token != TokenType.NOTHING )
 				fileWriter.write( "<span style=\"color:blue\"><b>" + current.content + "</b></span>" );
